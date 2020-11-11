@@ -1,7 +1,7 @@
 import requests 
 import os
 from pathlib import Path
-DIRECTORY = './../data'
+DIRECTORY = './../data/stocks'
 
 def save_ticker(ticker, path=DIRECTORY):
     Path(path).mkdir(parents=True, exist_ok=True)  # creating dir if not exist
