@@ -10,7 +10,6 @@ def inverse(data,ticker):
 def load_raw_data(ticker,path='./../data/stocks/'):
     df =pd.read_csv(path+ticker+'.csv')
     df.set_index('Data', drop=True, inplace=True)
-    data =[]
     return df[['Otwarcie','Najwyzszy','Najnizszy', 'Zamkniecie']][-250:].rename_axis('ID').values
 
 def load_data(ticker,path='./../data/stocks/'):
@@ -35,3 +34,6 @@ def prepare_data(ticker,path,seq_len):
         x_data.append(scaled_data[i-seq_len:i,:scaled_data.shape[1]])
         y_data.append(scaled_data[i])
     return np.array(x_data),np.array(y_data)    
+
+
+

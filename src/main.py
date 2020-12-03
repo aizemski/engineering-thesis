@@ -1,3 +1,4 @@
+import warnings
 import matplotlib.pyplot as plt
 from tickers import wig_20_stocks_tickers
 from get_stock_data import save_ticker
@@ -6,6 +7,9 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 from trade import *
 from data import *
+from arima import arima_predict
+
+
 
 def load_models(ticker,seq_len,epochs,k_flod):
     path = './../data/models/'    
@@ -16,18 +20,43 @@ def load_models(ticker,seq_len,epochs,k_flod):
 
 
 
-
-
-def evaluate(ticker,seq_len,epochs):
-    # print(ticker)
-    model = load_models(ticker,seq_len,epochs,5)
-    test_case =200
-    total_return=0
+def evaluate_arima(ticker,seq_len,test_case=200):
+    data = load_data(ticker)[-(test_case+seq_len*5):]
+    
+    # current = data[:seq_len]
+    predictions =[]
+    # arima_predict(current,seq_len)
+    for i in range(5*seq_len,test_case-seq_len-1):
+        current = data['zwrot_log'][:seq_len+i+1]     
+        result= arima_predict(current,seq_len)
+        predictions.append(result)
     
     fund_return=0
+    old_fund = fund = 100 # percents
+    efficiency = 0
+    transactions =0
+    fund_status=[]
+    # for i in range(len(predictions)):
+    #     fund*= wheter_to_buy(data[i],predictions)
+    #     transactions+=1
 
+    #     if (fund/old_fund>1):
+    #         efficiency+=1    
+    #     print(fund)
+    #     fund_status.append(fund/100)       
+    #     old_fund = fund
+    print(len(predictions),len(current)-seq_len*5)
+    plt.plot(predictions, label=ticker+'prediction') 
+    plt.plot(current[seq_len*6:], label='price change')
+    plt.legend()
+    plt.show()
+
+    return fund_return*100,fund
+
+def evaluate_lstm(ticker,seq_len,epochs,test_case=200):
+    model = load_models(ticker,seq_len,epochs,5)
+    fund_return=0
     fund = 100 # percents 
-    fund_without_com=100
     
     x_data, y_data = prepare_data(ticker,'./../data/stocks/',seq_len)
     x_data = x_data[-test_case:]
@@ -47,7 +76,7 @@ def evaluate(ticker,seq_len,epochs):
     
     efficiency = 0
     transactions =0
-    investing_result=[]
+
     fund_status=[]
     ticker_price=[]
     old_fund = fund
@@ -66,19 +95,16 @@ def evaluate(ticker,seq_len,epochs):
         if (fund/old_fund>1):
             efficiency+=1
             
-        investing_result.append(fund_without_com/100)
         fund_status.append(fund/100)       
         old_fund = fund
     
-    total_return+=fund
     fund_return+=ticker_price[-1]/ticker_price[0]
     
-    # plt.plot(investing_result,label=ticker+"no comm")
     # plt.plot(fund_status, label=ticker+'fund') 
     # plt.plot(ticker_price, label='price change')
     # plt.legend()
     # plt.show()
-    return fund_return*100,total_return
+    return fund_return*100,fund
 
     
 # data=input('Download data (Y/N): ')
@@ -95,7 +121,7 @@ a_t=[]
 b_t=[]
 for ticker in wig_20_stocks_tickers:
     if ticker !='ALE':
-        a,b=evaluate(ticker,4,21)
+        a,b=evaluate_arima(ticker,1)#(ticker,4,21)
         c=b
         if b>100:
             c= 100 + (b-100)*0.81
