@@ -1,28 +1,24 @@
-#https://www.analyticsvidhya.com/blog/2018/09/multivariate-time-series-guide-forecasting-modeling-python-codes/
-#https://towardsdatascience.com/analyzing-electricity-price-time-series-data-using-python-time-series-decomposition-and-price-4cd61924ef49
-from statsmodels.tsa.api import VAR
+from sklearn import linear_model
 import matplotlib.pyplot as plt
 
 from data import *
 from trade import wheter_to_buy
 
 
-def var_predict(history,seq_len):    
-    model = VAR(history)
-    history = history.values
-    model_fit = model.fit(1)
-    forecast = model_fit.forecast(y=history,steps=1)
+def lasso_predict(history,seq_len):    
+    model = linear_model.Lasso(alpha=0.1)
+    model_fit = model.fit(X=history,y=history)
+    forecast = model_fit.predict(history[-1:])
     return forecast[0][0]
 
-
-def evaluate_var(ticker,seq_len,test_case=200):
+def evaluate_lasso(ticker,seq_len,test_case=200):
     data = load_data(ticker)[-(test_case+seq_len*5):]
     
     predictions =[]
     for i in range(5*seq_len,test_case-seq_len-1):
-        current = data[:seq_len+i+1] 
-        result= var_predict(current,seq_len)
-        predictions.append(result)
+        current = data[i:seq_len+i+1] 
+        result =lasso_predict(current,seq_len)
+        predictions.append(result)   
     raw_data = load_raw_data(ticker)[-test_case+6*seq_len:]
     fund_return=0
     old_fund = fund = 100 # percents
@@ -44,7 +40,7 @@ def evaluate_var(ticker,seq_len,test_case=200):
     
     fund_return+=ticker_price[-1]/ticker_price[0]
 
-    plt.plot(fund_status, label=ticker+' var fund') 
+    plt.plot(fund_status, label=ticker+' lasso fund') 
     plt.plot(ticker_price, label='price change')
     plt.legend()
     plt.show()
