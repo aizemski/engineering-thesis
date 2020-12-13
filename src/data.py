@@ -15,10 +15,8 @@ def load_raw_data(ticker,path='./../data/stocks/'):
 def load_data(ticker,path='./../data/stocks/'):
     df  = pd.read_csv(path+ticker+'.csv')
     df.set_index('Data', drop=True, inplace=True)
-    #why log returns https://quantivity.wordpress.com/2011/02/21/why-log-returns/
     df['zwrot'] =df.Zamkniecie.pct_change()
-    # df['zwrot_log'] = np.log(1+df['zwrot'])
-    return df [['Zamkniecie','zwrot']][-250:] # return last 12 months
+    return df [['Zamkniecie','zwrot']][-250:] # return last ~12 months
 
 def prepare_data(ticker,path,seq_len):
     data = load_data(ticker,path)

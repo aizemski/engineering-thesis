@@ -32,7 +32,6 @@ def train(ticker,path='./../data/stocks/',k_fold=5,seq_len=20,batch_size=50,epoc
     i=0
     for train, test in skf.split(x_data):
         print('{}-{}'.format(ticker,i+1))
-        # print(train,test)
         x_train, x_test = x_data[train],x_data[test]
         y_train, y_test = y_data[train],y_data[test]
         
@@ -54,7 +53,6 @@ def train(ticker,path='./../data/stocks/',k_fold=5,seq_len=20,batch_size=50,epoc
         #save trained model
         save(model,ticker,i,seq_len,epochs)
 
-        # print(history.history[-1])
         i+=1
     print('{} stop'.format(ticker))
 

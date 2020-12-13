@@ -7,7 +7,6 @@ def wheter_to_buy(data,predictions,commission=0.3):
         if (predictions[i]*(1-commission/100)-(open_pirce)*(1+commission/100)) >.01:
             to_buy+=1
     if to_buy > how_may_votes//2 :
-        # print(predictions,max(predictions))
         return buy(data,commision=commission,take_profit=min(predictions))
     return 1.0
 

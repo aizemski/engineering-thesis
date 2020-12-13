@@ -1,5 +1,3 @@
-#https://www.analyticsvidhya.com/blog/2018/09/multivariate-time-series-guide-forecasting-modeling-python-codes/
-#https://towardsdatascience.com/analyzing-electricity-price-time-series-data-using-python-time-series-decomposition-and-price-4cd61924ef49
 from statsmodels.tsa.api import VAR
 import matplotlib.pyplot as plt
 
