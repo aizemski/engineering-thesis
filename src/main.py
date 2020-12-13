@@ -18,7 +18,11 @@ def load_models(ticker,seq_len,epochs,k_flod):
         models.append(load(path+'/'+str(ticker)+'/'+str(i)+'_'+str(seq_len)+'_'+str(epochs)+'.h5'))
     return models
 
-
+def evaluate_var(tricker,seq_len,test_case=200):
+    data = load_data(ticker)[-(test_case+seq_len*5):]
+    
+    predictions =[]
+    pass
 
 def evaluate_arima(ticker,seq_len,test_case=200):
     data = load_data(ticker)[-(test_case+seq_len*5):]
@@ -27,27 +31,30 @@ def evaluate_arima(ticker,seq_len,test_case=200):
     predictions =[]
     # arima_predict(current,seq_len)
     for i in range(5*seq_len,test_case-seq_len-1):
-        current = data['zwrot_log'][:seq_len+i+1]     
+        current = data['zwrot'][:seq_len+i+1]     
         result= arima_predict(current,seq_len)
         predictions.append(result)
-    
+    raw_data = load_raw_data(ticker)[-test_case+6*seq_len:]
     fund_return=0
     old_fund = fund = 100 # percents
     efficiency = 0
     transactions =0
     fund_status=[]
-    # for i in range(len(predictions)):
-    #     fund*= wheter_to_buy(data[i],predictions)
-    #     transactions+=1
+    print(len(raw_data))
+    # TODO 
+    for i in range(len(predictions)):
+        current_prediction = data['Zamkniecie'][i-1+6*seq_len]*(1+predictions[i][0])
+        # print(current_preditcion)
+        fund*= wheter_to_buy(raw_data[i],[current_prediction])
+        transactions+=1
 
-    #     if (fund/old_fund>1):
-    #         efficiency+=1    
-    #     print(fund)
-    #     fund_status.append(fund/100)       
-    #     old_fund = fund
-    print(len(predictions),len(current)-seq_len*5)
-    plt.plot(predictions, label=ticker+'prediction') 
-    plt.plot(current[seq_len*6:], label='price change')
+        if (fund/old_fund>1):
+            efficiency+=1    
+        # print(fund)
+        fund_status.append(fund/100)       
+        old_fund = fund
+    plt.plot(fund_status, label=ticker+'fund') 
+    # plt.plot(ticker_price, label='price change')
     plt.legend()
     plt.show()
 
@@ -100,10 +107,10 @@ def evaluate_lstm(ticker,seq_len,epochs,test_case=200):
     
     fund_return+=ticker_price[-1]/ticker_price[0]
     
-    # plt.plot(fund_status, label=ticker+'fund') 
-    # plt.plot(ticker_price, label='price change')
-    # plt.legend()
-    # plt.show()
+    plt.plot(fund_status, label=ticker+'fund') 
+    plt.plot(ticker_price, label='price change')
+    plt.legend()
+    plt.show()
     return fund_return*100,fund
 
     
@@ -121,8 +128,10 @@ a_t=[]
 b_t=[]
 for ticker in wig_20_stocks_tickers:
     if ticker !='ALE':
+        # a,b = evaluate_lstm(ticker,4,21)
         a,b=evaluate_arima(ticker,1)#(ticker,4,21)
         c=b
+        
         if b>100:
             c= 100 + (b-100)*0.81
         print('{} {} {} {}'.format(ticker,a,b,c))
