@@ -8,7 +8,7 @@ import numpy as np
 from trade import *
 from data import *
 from arima import arima_predict
-
+from var import var_predict
 
 
 def load_models(ticker,seq_len,epochs,k_flod):
@@ -22,17 +22,9 @@ def evaluate_var(tricker,seq_len,test_case=200):
     data = load_data(ticker)[-(test_case+seq_len*5):]
     
     predictions =[]
-    pass
-
-def evaluate_arima(ticker,seq_len,test_case=200):
-    data = load_data(ticker)[-(test_case+seq_len*5):]
-    
-    # current = data[:seq_len]
-    predictions =[]
-    # arima_predict(current,seq_len)
     for i in range(5*seq_len,test_case-seq_len-1):
-        current = data['zwrot'][:seq_len+i+1]     
-        result= arima_predict(current,seq_len)
+        current = data[:seq_len+i+1] 
+        result= var_predict(current,seq_len)
         predictions.append(result)
     raw_data = load_raw_data(ticker)[-test_case+6*seq_len:]
     fund_return=0
@@ -40,21 +32,61 @@ def evaluate_arima(ticker,seq_len,test_case=200):
     efficiency = 0
     transactions =0
     fund_status=[]
-    print(len(raw_data))
-    # TODO 
+    ticker_price =[]
+    
+    for i in range(len(predictions)):
+
+        ticker_price.append(data['Zamkniecie'][i-1+6*seq_len]/data['Zamkniecie'][6*seq_len-1])
+        fund*= wheter_to_buy(raw_data[i],[predictions[i]])
+        transactions+=1
+
+        if (fund/old_fund>1):
+            efficiency+=1    
+        fund_status.append(fund/100)       
+        old_fund = fund
+    
+    fund_return+=ticker_price[-1]/ticker_price[0]
+
+    plt.plot(fund_status, label=ticker+'fund') 
+    plt.plot(ticker_price, label='price change')
+    plt.legend()
+    plt.show()
+
+    return fund_return*100,fund
+
+
+def evaluate_arima(ticker,seq_len,test_case=200):
+    data = load_data(ticker)[-(test_case+seq_len*5):]
+    predictions =[]
+    
+    for i in range(5*seq_len,test_case-seq_len-1):
+        current = data['zwrot'][:seq_len+i+1]     
+        result= arima_predict(current,seq_len)
+        predictions.append(result)
+    
+    raw_data = load_raw_data(ticker)[-test_case+6*seq_len:]
+    fund_return=0
+    old_fund = fund = 100 # percents
+    efficiency = 0
+    transactions =0
+    fund_status=[]
+    ticker_price =[]
+    
     for i in range(len(predictions)):
         current_prediction = data['Zamkniecie'][i-1+6*seq_len]*(1+predictions[i][0])
-        # print(current_preditcion)
+        ticker_price.append(data['Zamkniecie'][i-1+6*seq_len]/data['Zamkniecie'][6*seq_len-1])
         fund*= wheter_to_buy(raw_data[i],[current_prediction])
         transactions+=1
 
         if (fund/old_fund>1):
             efficiency+=1    
-        # print(fund)
         fund_status.append(fund/100)       
         old_fund = fund
+    
+    fund_return+=ticker_price[-1]/ticker_price[0]
+
     plt.plot(fund_status, label=ticker+'fund') 
-    # plt.plot(ticker_price, label='price change')
+    plt.plot(ticker_price, label='price change')
     plt.legend()
     plt.show()
 
@@ -93,10 +125,7 @@ def evaluate_lstm(ticker,seq_len,epochs,test_case=200):
         for j in range(5):
             predictions.append(buying[j][i])
         ticker_price.append(y_data[i][0]/y_data[0][0])
-        # print(fund,end=' ')
-      
         fund*= wheter_to_buy(raw_data[i],predictions)
-
         transactions+=1
         
         if (fund/old_fund>1):
@@ -116,8 +145,8 @@ def evaluate_lstm(ticker,seq_len,epochs,test_case=200):
     
 # data=input('Download data (Y/N): ')
 # if data == 'Y':
-#     for ticker in wig_20_stocks_tickers:
-#         save_ticker(ticker)
+    # for ticker in wig_20_stocks_tickers:
+    #     save_ticker(ticker)
 
 # data=input('Train all tickers (Y/N): ')
 # if data == 'Y':
@@ -129,14 +158,15 @@ b_t=[]
 for ticker in wig_20_stocks_tickers:
     if ticker !='ALE':
         # a,b = evaluate_lstm(ticker,4,21)
-        a,b=evaluate_arima(ticker,1)#(ticker,4,21)
-        c=b
+        # a,b=evaluate_arima(ticker,1)
+        evaluate_var(ticker,1)
+        # c=b
         
-        if b>100:
-            c= 100 + (b-100)*0.81
-        print('{} {} {} {}'.format(ticker,a,b,c))
-        a_t.append(a)
-        b_t.append(b)
+        # if b>100:
+        #     c= 100 + (b-100)*0.81
+        # print('{} {} {} {}'.format(ticker,a,b,c))
+        # a_t.append(a)
+        # b_t.append(b)
 
 # print(np.mean(a_t))
 # print(np.mean(b_t))
