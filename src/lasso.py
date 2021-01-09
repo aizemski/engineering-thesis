@@ -11,7 +11,7 @@ def lasso_predict(history,seq_len):
     forecast = model_fit.predict(history[-1:])
     return forecast[0][0]
 
-def evaluate_lasso(ticker,seq_len,test_case=200):
+def evaluate_lasso(ticker,seq_len,test_case=200,commission=0.3,display_plots=0):
     data = load_data(ticker)[-(test_case+seq_len*5):]
     
     predictions =[]
@@ -30,7 +30,7 @@ def evaluate_lasso(ticker,seq_len,test_case=200):
     for i in range(len(predictions)):
 
         ticker_price.append(data['Zamkniecie'][i-1+6*seq_len]/data['Zamkniecie'][6*seq_len-1])
-        fund*= wheter_to_buy(raw_data[i],[predictions[i]])
+        fund*= wheter_to_buy(raw_data[i],[predictions[i]],commission)
         transactions+=1
 
         if (fund/old_fund>1):
@@ -39,11 +39,11 @@ def evaluate_lasso(ticker,seq_len,test_case=200):
         old_fund = fund
     
     fund_return+=ticker_price[-1]/ticker_price[0]
+    if display_plots:
+        plt.plot(fund_status, label=ticker+' lasso fund') 
+        plt.plot(ticker_price, label='price change')
+        plt.legend()
+        plt.show()
 
-    plt.plot(fund_status, label=ticker+' lasso fund') 
-    plt.plot(ticker_price, label='price change')
-    plt.legend()
-    plt.show()
-
-    return fund_return*100,fund
+    return fund_return*100,fund,fund_status
 

@@ -16,6 +16,8 @@ def get_data(ticker):
     result = requests.get(url)
     return result.content
 
+    
+
 
 
 

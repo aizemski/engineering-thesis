@@ -65,7 +65,7 @@ def load_models(ticker,seq_len,epochs,k_flod):
     return models
 
 
-def evaluate_lstm(ticker,seq_len,epochs,test_case=200):
+def evaluate_lstm(ticker,seq_len,epochs,test_case=194,commission=0.3,display_plots=0):
     model = load_models(ticker,seq_len,epochs,5)
     fund_return=0
     fund = 100 # percents 
@@ -98,7 +98,7 @@ def evaluate_lstm(ticker,seq_len,epochs,test_case=200):
         for j in range(5):
             predictions.append(buying[j][i])
         ticker_price.append(y_data[i][0]/y_data[0][0])
-        fund*= wheter_to_buy(raw_data[i],predictions)
+        fund*= wheter_to_buy(raw_data[i],predictions,commission)
         transactions+=1
         
         if (fund/old_fund>1):
@@ -108,9 +108,10 @@ def evaluate_lstm(ticker,seq_len,epochs,test_case=200):
         old_fund = fund
     
     fund_return+=ticker_price[-1]/ticker_price[0]
+    if display_plots:
     
-    plt.plot(fund_status, label=ticker+' lstm fund') 
-    plt.plot(ticker_price, label='price change')
-    plt.legend()
-    plt.show()
-    return fund_return*100,fund
+        plt.plot(fund_status, label=ticker+' lstm fund') 
+        plt.plot(ticker_price, label='price change')
+        plt.legend()
+        plt.show()
+    return fund_return*100,fund,fund_status

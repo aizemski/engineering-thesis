@@ -6,6 +6,7 @@ from trade import wheter_to_buy
 
 
 
+
 def arima_predict(history,seq_len):
     history = [x for x in history]
     model = ARIMA(history,order=(seq_len,1,0))
@@ -13,7 +14,7 @@ def arima_predict(history,seq_len):
     output = model_fit.forecast()[0]
     return output
 
-def evaluate_arima(ticker,seq_len,test_case=200):
+def evaluate_arima(ticker,seq_len,test_case=200,commission=0.3,display_plots=0):
     data = load_data(ticker)[-(test_case+seq_len*5):]
     predictions =[]
     
@@ -33,7 +34,7 @@ def evaluate_arima(ticker,seq_len,test_case=200):
     for i in range(len(predictions)):
         current_prediction = data['Zamkniecie'][i-1+6*seq_len]*(1+predictions[i][0])
         ticker_price.append(data['Zamkniecie'][i-1+6*seq_len]/data['Zamkniecie'][6*seq_len-1])
-        fund*= wheter_to_buy(raw_data[i],[current_prediction])
+        fund*= wheter_to_buy(raw_data[i],[current_prediction],commission)
         transactions+=1
 
         if (fund/old_fund>1):
@@ -42,10 +43,10 @@ def evaluate_arima(ticker,seq_len,test_case=200):
         old_fund = fund
     
     fund_return+=ticker_price[-1]/ticker_price[0]
+    if display_plots:
+        plt.plot(fund_status, label=ticker+' arima fund') 
+        plt.plot(ticker_price, label='price change')
+        plt.legend()
+        plt.show()
 
-    plt.plot(fund_status, label=ticker+' arima fund') 
-    plt.plot(ticker_price, label='price change')
-    plt.legend()
-    plt.show()
-
-    return fund_return*100,fund
+    return fund_return*100,fund,fund_status
