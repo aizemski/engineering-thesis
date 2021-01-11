@@ -32,7 +32,7 @@ def evaluate(commission,display_plots = 0):
             _,_,fund_status=evaluate_lasso(ticker,1,commission=commission,display_plots=display_plots,test_case=test_case)
             lasso_fund.append(fund_status)
 
-    wig20 = load_data('CDR',test_case=test_case)[-test_case+7:]
+    wig20 = load_data('wig20',test_case=test_case)[-test_case+7:]
     
 
     plt.title('Prowizja {}%'.format(commission))
