@@ -13,7 +13,7 @@ from trade import wheter_to_buy
 
 
 def save(model,ticker,i,seq_len,epochs):
-    path='./../data/models/'+ticker
+    path='./../data/models'+ticker
     Path(path).mkdir(parents=True, exist_ok=True)  # creating dir if not exist
     model.save(path+'/'+str(i)+'_'+str(seq_len)+'_'+str(epochs)+'.h5')
 
@@ -58,7 +58,7 @@ def train(ticker,path='./../data/stocks/',k_fold=5,seq_len=20,batch_size=50,epoc
 
 
 def load_models(ticker,seq_len,epochs,k_flod):
-    path = './../data/models/'    
+    path = './../data/models'    
     models = []
     for i in range(k_flod):
         models.append(load(path+'/'+str(ticker)+'/'+str(i)+'_'+str(seq_len)+'_'+str(epochs)+'.h5'))
@@ -70,11 +70,11 @@ def evaluate_lstm(ticker,seq_len,epochs,test_case=194,commission=0.3,display_plo
     fund_return=0
     fund = 100 # percents 
     
-    x_data, y_data = prepare_data(ticker,'./../data/stocks/',seq_len)
+    x_data, y_data = prepare_data(ticker,'./../data/stocks/',seq_len,test_case=test_case+seq_len+1)
     x_data = x_data[-test_case:]
     y_data = y_data[-test_case:]
     y_data = inverse(y_data,ticker)
-    raw_data = load_raw_data(ticker)[-test_case:]
+    raw_data = load_raw_data(ticker,test_case=test_case)[-test_case:]
     
     result=np.zeros((test_case,))
     buying = []
@@ -110,8 +110,8 @@ def evaluate_lstm(ticker,seq_len,epochs,test_case=194,commission=0.3,display_plo
     fund_return+=ticker_price[-1]/ticker_price[0]
     if display_plots:
     
-        plt.plot(fund_status, label=ticker+' lstm fund') 
-        plt.plot(ticker_price, label='price change')
+        plt.plot(fund_status, label=ticker+' lstm') 
+        plt.plot(ticker_price, label='Zmiana ceny')
         plt.legend()
         plt.show()
     return fund_return*100,fund,fund_status

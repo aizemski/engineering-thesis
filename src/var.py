@@ -14,14 +14,14 @@ def var_predict(history,seq_len):
 
 
 def evaluate_var(ticker,seq_len,test_case=200,commission=0.3,display_plots=0):
-    data = load_data(ticker)[-(test_case+seq_len*5):]
+    data = load_data(ticker,test_case=test_case+seq_len*5)
     
     predictions =[]
     for i in range(5*seq_len,test_case-seq_len-1):
         current = data[:seq_len+i+1] 
         result= var_predict(current,seq_len)
         predictions.append(result)
-    raw_data = load_raw_data(ticker)[-test_case+6*seq_len:]
+    raw_data = load_raw_data(ticker,test_case=test_case)[-test_case+6*seq_len:]
     fund_return=0
     old_fund = fund = 100 # percents
     efficiency = 0
@@ -42,8 +42,8 @@ def evaluate_var(ticker,seq_len,test_case=200,commission=0.3,display_plots=0):
     
     fund_return+=ticker_price[-1]/ticker_price[0]
     if display_plots:
-        plt.plot(fund_status, label=ticker+' var fund') 
-        plt.plot(ticker_price, label='price change')
+        plt.plot(fund_status, label=ticker+' var') 
+        plt.plot(ticker_price, label='Zmiana ceny')
         plt.legend()
         plt.show()
 
