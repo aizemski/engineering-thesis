@@ -5,7 +5,6 @@ from keras.models import Sequential,load_model
 from keras.layers import LSTM, Dense, Dropout
 from pathlib import Path
 import matplotlib.pyplot as plt
-
 from data import *
 from trade import wheter_to_buy
 
@@ -35,7 +34,7 @@ def train(ticker,path='./../data/stocks/',k_fold=5,seq_len=20,batch_size=50,epoc
         x_train, x_test = x_data[train],x_data[test]
         y_train, y_test = y_data[train],y_data[test]
         
-        #create model 
+        #Tworzenie modelu 
         model = Sequential()
         model.add(LSTM(units=128, activation='relu',return_sequences=True,
                 input_shape=(x_train.shape[1],x_train.shape[2])))
@@ -46,11 +45,11 @@ def train(ticker,path='./../data/stocks/',k_fold=5,seq_len=20,batch_size=50,epoc
         model.add(Dense(units=1))
         model.compile(optimizer='adam',loss='mean_squared_error')
 
-        #train model
+        #cwiczenie modelu
         history = model.fit(x_train,y_train, epochs=epochs,batch_size=batch_size,
                 validation_data=(x_test,y_test),verbose=0)
 
-        #save trained model
+        #zapisanie wyniku modlu
         save(model,ticker,i,seq_len,epochs)
 
         i+=1
@@ -68,7 +67,7 @@ def load_models(ticker,seq_len,epochs,k_flod):
 def evaluate_lstm(ticker,seq_len,epochs,test_case=194,commission=0.3,display_plots=0):
     model = load_models(ticker,seq_len,epochs,5)
     fund_return=0
-    fund = 100 # percents 
+    fund = 100 # procenty 
     
     x_data, y_data = prepare_data(ticker,'./../data/stocks/',seq_len,test_case=test_case+seq_len+1)
     x_data = x_data[-test_case:]
@@ -76,40 +75,30 @@ def evaluate_lstm(ticker,seq_len,epochs,test_case=194,commission=0.3,display_plo
     y_data = inverse(y_data,ticker)
     raw_data = load_raw_data(ticker,test_case=test_case)[-test_case:]
     
+    # przygotowanie przewidywan
     result=np.zeros((test_case,))
     buying = []
-
     for i in range(5):
         y_pred = model[i].predict(x_data)   
         y_pred = np.c_[y_pred,np.zeros(y_pred.shape)]
         y_pred_inverse = inverse(y_pred,ticker)[:,0]
         result += y_pred_inverse
         buying.append(y_pred_inverse)
-    
-    efficiency = 0
-    transactions =0
 
     fund_status=[]
     ticker_price=[]
-    old_fund = fund
 
+    # symulacja handlu na gieldzie
     for i in range(1,len(buying[0])):
         predictions=[] 
         for j in range(5):
             predictions.append(buying[j][i])
         ticker_price.append(y_data[i][0]/y_data[0][0])
         fund*= wheter_to_buy(raw_data[i],predictions,commission)
-        transactions+=1
-        
-        if (fund/old_fund>1):
-            efficiency+=1
-            
         fund_status.append(fund/100)       
-        old_fund = fund
+
     
-    fund_return+=ticker_price[-1]/ticker_price[0]
     if display_plots:
-    
         plt.plot(fund_status, label=ticker+' lstm') 
         plt.plot(ticker_price, label='Zmiana ceny')
         plt.ylabel('Zwrot (%)')
@@ -117,4 +106,5 @@ def evaluate_lstm(ticker,seq_len,epochs,test_case=194,commission=0.3,display_plo
         plt.legend()
         plt.savefig('../data/plots/lstm_{}_{}%_{}days.pdf'.format(ticker,commission,test_case))
         plt.close()
-    return fund_return*100,fund,fund_status
+        
+    return fund_status
