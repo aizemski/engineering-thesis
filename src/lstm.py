@@ -112,6 +112,9 @@ def evaluate_lstm(ticker,seq_len,epochs,test_case=194,commission=0.3,display_plo
     
         plt.plot(fund_status, label=ticker+' lstm') 
         plt.plot(ticker_price, label='Zmiana ceny')
+        plt.ylabel('Zwrot (%)')
+        plt.xlabel('Czas')
         plt.legend()
-        plt.show()
+        plt.savefig('../data/plots/lstm_{}_{}%_{}days.pdf'.format(ticker,commission,test_case))
+        plt.close()
     return fund_return*100,fund,fund_status
