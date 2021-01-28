@@ -10,7 +10,7 @@ Wykorzystane biblioteki wraz z ich wersjami:
 -   numpy 1.18.5
 -   pandas 1.1.4
 -   requests 2.23.0
--   scikit-learn 0.23.2
+-   scikit-learn 0.23.2-
 -   scipy 1.5.4
 -   statsmodels 0.12.1
 -   tensorflow 2.3.1
@@ -30,8 +30,16 @@ Struktura projektu:
     -   var.py - funkcje odpowiedzialne za ewaluacje handlu za pomoca modelu var (wraz z tworzeniem przewidywan).
 
 -   data:
-    -   models - modele LSTM
-    -   plots - wykresy wygenerowane przez aplikacje
-    -   stock - dane odnosie notowan spółek
+    -   models - modele LSTM, w folderze są zapisane modele wykorzystane w pracy inzynierskiej,
+    -   plots - wykresy wygenerowane przez aplikacje, w folderze znajdują się dane wykresy w pracy inzynierskiej,
+    -   stock - dane odnosie notowan spółek, w folderze znajdują się dane wykorzystane w pracy inzynierskiej,
 
 W celu uruchomieniu aplikacji nalezy przejsc do folderu src/ i uruchmić main.py.
+Po uruchomieniu zostaniemy poproszeni o wybranie:
+
+-   czy chcemy pobrac aktualne dane z rynku,
+-   czy chcemy wygenerowac modele LSTM,
+-   czy chchcemy zapisywac wyniki poszczegolnych akcji,
+-   jaką prowizję płacimy za zlecenie.
+
+W celu powtórzenia eksperymentu z pracy inzynierskiej nalezy w dwóch pierwszych pytaniach należy wybrać opcje N, w trzecim T a w czwartym prowizje na poziomie 0%.

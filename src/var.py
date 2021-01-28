@@ -7,7 +7,7 @@ from trade import wheter_to_buy
 def var_predict(history):    
     model = VAR(history)
     history = history.values
-    model_fit = model.fit(1)
+    model_fit = model.fit()
     forecast = model_fit.forecast(y=history,steps=1)
     return forecast[0][0]
 
@@ -34,16 +34,6 @@ def evaluate_var(ticker,seq_len,test_case=200,commission=0.3,display_plots=0):
         ticker_price.append(data['Zamkniecie'][i]/data['Zamkniecie'][0])
         fund*= wheter_to_buy(raw_data[i],[current_prediction],commission)
         fund_status.append(fund/100)       
-
-    
-    if display_plots:
-        plt.plot(fund_status, label=ticker+' var') 
-        plt.plot(ticker_price, label='Zmiana ceny')
-        plt.ylabel('Zwrot (%)')
-        plt.xlabel('Czas')
-        plt.legend()
-        plt.savefig('../data/plots/var_{}_{}%_{}days.pdf'.format(ticker,commission,test_case))
-        plt.close()
 
     return fund_status
 

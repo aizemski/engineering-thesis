@@ -139,16 +139,16 @@ def evaluate(commission,display_plots = 0):
 
 display_plots = 0
 data=''
-data=input('Pobierz dane z rynku (T/N): ')
-if data == 'T':
-    save_ticker('wig20')
-    for ticker in wig_20_stocks_tickers:
-        save_ticker(ticker)
+# data=input('Pobierz dane z rynku (T/N): ')
+# if data == 'T':
+#     save_ticker('wig20')
+#     for ticker in wig_20_stocks_tickers:
+#         save_ticker(ticker)
 
-data=input('Stworz modele LSTM (T/N): ')
-if data == 'T':
-    for ticker in wig_20_stocks_tickers:
-        train(ticker,seq_len=4,epochs=21)
+# data=input('Stworz modele LSTM (T/N): ')
+# if data == 'T':
+#     for ticker in wig_20_stocks_tickers:
+#         train(ticker,seq_len=4,epochs=21)
 
 data=input('Wygeneruj wykresy dla poszczegolnych akcji (wszystkie podejscia) (T/N): ')
 if data == 'T':

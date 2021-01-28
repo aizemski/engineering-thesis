@@ -6,7 +6,7 @@ from trade import wheter_to_buy
 
 def arima_predict(history):
     history = [x for x in history]
-    model = ARIMA(history,order=(0,1,0))
+    model = ARIMA(history,order=(0,0,4))
     model_fit = model.fit(disp=0)
     output = model_fit.forecast()[0]
     return output
@@ -34,15 +34,5 @@ def evaluate_arima(ticker,seq_len,test_case=200,commission=0.3,display_plots=0):
         ticker_price.append(data['Zamkniecie'][i]/data['Zamkniecie'][0])
         fund*= wheter_to_buy(raw_data[i],[current_prediction],commission)
         fund_status.append(fund/100)       
-
-    
-    if display_plots:
-        plt.plot(fund_status, label=ticker+' arima') 
-        plt.plot(ticker_price, label='Zmiana ceny')
-        plt.ylabel('Zwrot (%)')
-        plt.xlabel('Czas')
-        plt.legend()
-        plt.savefig('../data/plots/arima_{}_{}%_{}days.pdf'.format(ticker,commission,test_case))
-        plt.close()
 
     return fund_status
